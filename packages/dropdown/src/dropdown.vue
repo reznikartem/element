@@ -90,10 +90,8 @@
       this.$on('menu-item-click', this.handleMenuItemClick);
     },
     beforeDestroy() {
-      if (this.triggerElm) {
-        for (let item of this.triggerElmEvents) {
-          this.triggerElm.removeEventListener(item.type, item.listener);
-        }
+      for (let item of this.triggerElmEvents) {
+        item.element.removeEventListener(item.type, item.listener);
       }
       this.triggerElmEvents = [];
     },
@@ -212,9 +210,10 @@
           this.triggerElm.setAttribute('class', (this.triggerElm.getAttribute('class') || '') + ' el-dropdown-selfdefine'); // 控制
         }
       },
-      addEventListenerToTriggerElm(type, listener) {
-        this.triggerElm.addEventListener(type, listener);
+      addEventListenerToElement(element, type, listener) {
+        element.addEventListener(type, listener);
         this.triggerElmEvents.push({
+          element,
           type,
           listener
         });
@@ -228,26 +227,26 @@
         let dropdownElm = this.dropdownElm;
 
         this.addEventListenerToTriggerElm('keydown', handleTriggerKeyDown); // triggerElm keydown
-        dropdownElm.addEventListener('keydown', handleItemKeyDown, true); // item keydown
+        this.addEventListenerToElement(dropdownElm, 'keydown', handleItemKeyDown, true); // item keydown
         // 控制自定义元素的样式
         if (!splitButton) {
-          this.addEventListenerToTriggerElm('focus', () => {
+          this.addEventListenerToElement(this.triggerElm, 'focus', () => {
             this.focusing = true;
           });
-          this.addEventListenerToTriggerElm('blur', () => {
+          this.addEventListenerToElement(this.triggerElm, 'blur', () => {
             this.focusing = false;
           });
-          this.addEventListenerToTriggerElm('click', () => {
+          this.addEventListenerToElement(this.triggerElm, 'click', () => {
             this.focusing = false;
           });
         }
         if (trigger === 'hover') {
-          this.addEventListenerToTriggerElm('mouseenter', show);
-          this.addEventListenerToTriggerElm('mouseleave', hide);
-          dropdownElm.addEventListener('mouseenter', show);
-          dropdownElm.addEventListener('mouseleave', hide);
+          this.addEventListenerToElement(this.triggerElm, 'mouseenter', show);
+          this.addEventListenerToElement(this.triggerElm, 'mouseleave', hide);
+          this.addEventListenerToElement(dropdownElm, 'mouseenter', show);
+          this.addEventListenerToElement(dropdownElm, 'mouseleave', hide);
         } else if (trigger === 'click') {
-          this.addEventListenerToTriggerElm('click', handleClick);
+          this.addEventListenerToElement(this.triggerElm, 'click', handleClick);
         }
       },
       handleMenuItemClick(command, instance) {
