@@ -76,7 +76,7 @@
         dropdownElm: null,
         focusing: false,
         listId: `dropdown-menu-${generateId()}`,
-        triggerElmEvents: []
+        eventsForDispose: []
       };
     },
 
@@ -90,10 +90,10 @@
       this.$on('menu-item-click', this.handleMenuItemClick);
     },
     beforeDestroy() {
-      for (let item of this.triggerElmEvents) {
+      for (let item of this.eventsForDispose) {
         item.element.removeEventListener(item.type, item.listener);
       }
-      this.triggerElmEvents = [];
+      this.eventsForDispose = [];
     },
 
     watch: {
@@ -212,7 +212,7 @@
       },
       addEventListenerToElement(element, type, listener) {
         element.addEventListener(type, listener);
-        this.triggerElmEvents.push({
+        this.eventsForDispose.push({
           element,
           type,
           listener
@@ -226,7 +226,7 @@
 
         let dropdownElm = this.dropdownElm;
 
-        this.addEventListenerToTriggerElm('keydown', handleTriggerKeyDown); // triggerElm keydown
+        this.addEventListenerToElement(this.triggerElm, 'keydown', handleTriggerKeyDown); // triggerElm keydown
         this.addEventListenerToElement(dropdownElm, 'keydown', handleItemKeyDown, true); // item keydown
         // 控制自定义元素的样式
         if (!splitButton) {
